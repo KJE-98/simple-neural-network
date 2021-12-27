@@ -1,6 +1,4 @@
 import random
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 
 # A functional approach
 
@@ -31,6 +29,7 @@ def activate(prevLayer, node):
         foo += node['inputs'][i]*prevLayer[i]
     result = activation_ReLU(foo)
     return result
+
 # copies network but gives random weights
 def createRandomNet(network):
     newNetwork = []
@@ -47,6 +46,7 @@ def createRandomNet(network):
                 newNode['inputs'].append(newInput)
     return newNetwork
 
+# copies a network and gives all weights value 0
 def copyNetStructure(network):
     newNetwork = []
     for i in range(len(network)):
@@ -62,8 +62,8 @@ def copyNetStructure(network):
                 newNode['inputs'].append(newInput)
     return newNetwork
 
-# Modifies the nodes within network
-# number_of_inputs only musst be specified if adding layer 0 node
+# Adds a node to network
+# number_of_inputs only must be specified if adding layer 0 node
 def addNode(network, level, defaultWeightForward=.5, defaultWeightBackward = .5, number_of_inputs = 0, activation = "ReLU"):
     node = createNode([],activation)
     network[level].append(node)
@@ -77,6 +77,7 @@ def addNode(network, level, defaultWeightForward=.5, defaultWeightBackward = .5,
         for aNode in network[level+1]:
             aNode['inputs'].append(defaultWeight)
 
+# Forward propogation
 def propogate(network, inputs):
     layer_results = []
     layer_results.append(copy(inputs))
@@ -89,7 +90,7 @@ def propogate(network, inputs):
         layer_results.append(newLayer)
     return layer_results
 
-# Creates an array of numbers having the same structure as the network
+# Creates an array of numbers (rather than nodes) having the same structure as the network
 def valueArray(network):
     layer_results = []
     for layer in network:
@@ -111,9 +112,8 @@ def combine(network_one, network_two, weight_one, weight_two):
                 currentNode_one["inputs"][k] = currentNode_one["inputs"][k] * weight_one + currentNode_two["inputs"][k] * weight_two
     return network_one
 
-animationArray = []
-
-def train(data, network):
+# BackPropogation
+def train(data, network, learning_constant):
     data_length = len(data)
     num_layers = len(network)
     delta_weights_final = copyNetStructure(network)
@@ -143,11 +143,16 @@ def train(data, network):
                         if index > 0:
                             delta_nodes[index-1][input_index] += network[index][node_index]['inputs'][input_index]*delta_nodes[index][node_index]
         weight_two = 1/data_length
-        weight_one = 1-weight_two
+        weight_one = 1
         combine(delta_weights_final, delta_weights, weight_one, weight_two)
-    combine(network, delta_weights_final, 1, -1/200)
+    combine(network, delta_weights_final, 1, (-1)*learning_constant)
     return network
 
+# How it works
+
+# First initialize a 2-d array of the number of layers you desire
+
+# This network will have 3 Hidden layers
 myNetwork = [
 [],
 [],
@@ -155,7 +160,7 @@ myNetwork = [
 [],
 ]
 
-
+# Use addNode to create the network
 for i in range(5):
     addNode(myNetwork, 0, number_of_inputs = 2)
 for i in range(5):
@@ -165,7 +170,8 @@ for i in range(5):
 
 addNode(myNetwork, 3)
 
-for j in range(150):
+# Train by batching the data and using the train function
+for j in range(100):
     data = []
 
     for i in range(150):
@@ -173,22 +179,24 @@ for j in range(150):
         y = x**2-x**3
         data.append({'input':[1,x], 'value':y})
 
-        train(data, myNetwork)
-    print(j)
+        train(data, myNetwork, 1/200)
+    print("Training batch " + str(j))
+
+# Test to see if the Neural Net worked
 print(myNetwork)
-print(propogate(myNetwork, [1,0]))
+print(propogate(myNetwork, [1,0])[-1])
 print(0**2-0**3)
-print(propogate(myNetwork, [1,.1]))
+print(propogate(myNetwork, [1,.1])[-1])
 print(.1**2-.1**3)
-print(propogate(myNetwork, [1,.2]))
+print(propogate(myNetwork, [1,.2])[-1])
 print(.2**2-.2**3)
-print(propogate(myNetwork, [1,.3]))
+print(propogate(myNetwork, [1,.3])[-1])
 print(.3**2-.3**3)
-print(propogate(myNetwork, [1,.35]))
+print(propogate(myNetwork, [1,.35])[-1])
 print(.35**2-.35**3)
-print(propogate(myNetwork, [1,.4]))
+print(propogate(myNetwork, [1,.4])[-1])
 print(.4**2-.4**3)
-print(propogate(myNetwork, [1,.5]))
+print(propogate(myNetwork, [1,.5])[-1])
 print(.5**2-.5**3)
-print(propogate(myNetwork, [1,.55]))
+print(propogate(myNetwork, [1,.55])[-1])
 print(.55**2-.55**3)
