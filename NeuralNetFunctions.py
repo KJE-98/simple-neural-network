@@ -1,6 +1,5 @@
 import random
-
-# A functional approach
+import ast
 
 # Shallow copy
 def copy(list):
@@ -148,6 +147,21 @@ def train(data, network, learning_constant):
     combine(network, delta_weights_final, 1, (-1)*learning_constant)
     return network
 
+# Serializes the network and stores it in file named "NeuralNetStorage.txt"
+def writeNetToFile(network):
+    network_str = repr(network)
+    with open("NeuralNetStorage.txt", 'w') as file:
+        file.write(network_str)
+    return
+
+# Reads from "NeuralNetStorage.txt" and returns a network
+def readNetFromFile():
+    result = "Error"
+    with open("NeuralNetStorage.txt", 'r') as file:
+        result = file.read()
+    return ast.literal_eval(result)
+
+
 # How it works
 
 # First initialize a 2-d array of the number of layers you desire
@@ -174,7 +188,7 @@ addNode(myNetwork, 3)
 for j in range(100):
     data = []
 
-    for i in range(150):
+    for i in range(100):
         x = 2*random.random()/3
         y = x**2-x**3
         data.append({'input':[1,x], 'value':y})
@@ -183,20 +197,22 @@ for j in range(100):
     print("Training batch " + str(j))
 
 # Test to see if the Neural Net worked
-print(myNetwork)
+# Obviously this is not a substitute for a test batch
+print("Guess for x = 0")
 print(propogate(myNetwork, [1,0])[-1])
+print("actual answer:")
 print(0**2-0**3)
-print(propogate(myNetwork, [1,.1])[-1])
-print(.1**2-.1**3)
+print()
+print("Guess for x = .2")
 print(propogate(myNetwork, [1,.2])[-1])
+print("actual answer:")
 print(.2**2-.2**3)
-print(propogate(myNetwork, [1,.3])[-1])
-print(.3**2-.3**3)
-print(propogate(myNetwork, [1,.35])[-1])
-print(.35**2-.35**3)
-print(propogate(myNetwork, [1,.4])[-1])
-print(.4**2-.4**3)
-print(propogate(myNetwork, [1,.5])[-1])
-print(.5**2-.5**3)
+print()
+print("Guess for x = .55")
 print(propogate(myNetwork, [1,.55])[-1])
+print("actual answer:")
 print(.55**2-.55**3)
+
+# Store these weights
+writeNetToFile(myNetwork)
+print("Net saved into file \'NeuralNetStorage.txt\'")
