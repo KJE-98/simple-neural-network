@@ -1,5 +1,4 @@
 # simple-neural-network
-A general intelligence.
 Generally pretty intelligent at estimating curves.
 
 This Library can create and train a Multi-Layer Perceptron Neural-Network with:
